@@ -2,8 +2,8 @@
  * Created by TinySymphony on 2017-01-03.
  */
 
-import React, {PureComponent} from 'react';
-import PropTypes from 'prop-types';
+import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
 import {
   View,
   Text,
@@ -11,8 +11,8 @@ import {
   Modal,
   ScrollView,
   TouchableHighlight
-} from 'react-native';
-import Styles, {IMG} from './LabelSelectStyle';
+} from "react-native";
+import Styles, { IMG } from "./LabelSelectStyle";
 
 class LabelSelect extends PureComponent {
   addIcon = {
@@ -30,13 +30,13 @@ class LabelSelect extends PureComponent {
   static defaultProps = {
     style: {},
     customStyle: {},
-    title: ' ',
+    title: " ",
     enable: true,
     readOnly: false,
     onConfirm: () => {},
     enableAddBtn: true,
-    confirmText: 'Confirm',
-    cancelText: 'Cancel'
+    confirmText: "Confirm",
+    cancelText: "Cancel"
   };
   constructor(props) {
     super(props);
@@ -51,14 +51,14 @@ class LabelSelect extends PureComponent {
     this.openModal = this.openModal.bind(this);
   }
   setModalVisible(isVisible) {
-    this.setState({isModalVisible: isVisible});
+    this.setState({ isModalVisible: isVisible });
   }
   cancelSelect() {
     this.selectedList = [];
     this.setModalVisible(false);
   }
   confirmSelect() {
-    const {onConfirm} = this.props;
+    const { onConfirm } = this.props;
     onConfirm(this.selectedList);
     this.selectedList = [];
     this.cancelSelect();
@@ -90,7 +90,8 @@ class LabelSelect extends PureComponent {
       enableAddBtn,
       customStyle,
       confirmText,
-      cancelText
+      cancelText,
+      addButtonText
     } = this.props;
     let selectedLabels = React.Children.toArray(this.props.children)
       .filter(item => item.type === Label)
@@ -103,38 +104,61 @@ class LabelSelect extends PureComponent {
 
     let modalItems = this.state.isModalVisible
       ? React.Children.toArray(this.props.children)
-        .filter(item => item.type === ModalItem)
-        .map((child, index) => {
-          return React.cloneElement(child, {
-            toggleSelect: this.toggleSelect
-          });
-        })
+          .filter(item => item.type === ModalItem)
+          .map((child, index) => {
+            return React.cloneElement(child, {
+              toggleSelect: this.toggleSelect
+            });
+          })
       : null;
 
     return (
       <View style={[Styles.selectedView, style]}>
         {selectedLabels}
-        {enable &&
-          !readOnly &&
-          enableAddBtn && (
-          <TouchableHighlight
-            style={[Styles.selectedItem, Styles.addItem]}
-            underlayColor="transparent"
-            onPress={this.openModal}
-          >
-            <Image
-              style={Styles.addIcon}
-              source={this.addIcon}
-              resizeMode="cover"
-            />
-          </TouchableHighlight>
+        <TouchableHighlight
+          underlayColor="transparent"
+          onPress={this.openModal}
+        >
+          <View style={Styles.selectedItem}>
+            {addButtonText && (
+              <Text
+                style={[
+                  Styles.labelText,
+                  !enable && Styles.disableText,
+                  customStyle.addButtonText || {}
+                ]}
+                numberOfLines={1}
+                ellipsisMode="tail"
+              >
+                {addButtonText}
+              </Text>
+            )}
+            {enable &&
+              !readOnly &&
+              enableAddBtn && (
+                <View
+                  style={[
+                    Styles.closeContainer,
+                    Styles.addItem,
+                    customStyle.addButton || {}
+                  ]}
+                >
+                  <Image
+                    style={Styles.addIcon}
+                    source={this.addIcon}
+                    resizeMode="cover"
+                  />
+                </View>
+              )}
+          </View>
+        </TouchableHighlight>
         )}
         <Modal
           transparent={true}
           visible={this.state.isModalVisible}
           onRequestClose={() => {}}
         >
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <TouchableHighlight
               style={Styles.modalMask}
               activeOpacity={1}
@@ -225,7 +249,7 @@ class Label extends PureComponent {
     super(props);
   }
   render() {
-    const {enable, readOnly, onCancel, customStyle} = this.props;
+    const { enable, readOnly, onCancel, customStyle } = this.props;
     return (
       <View style={[Styles.selectedItem, !enable && Styles.disableColor]}>
         <Text
@@ -241,21 +265,21 @@ class Label extends PureComponent {
         </Text>
         {enable &&
           !readOnly && (
-          <TouchableHighlight
-            style={Styles.closeContainer}
-            underlayColor="transparent"
-            activeOpacity={0.5}
-            onPress={onCancel}
-          >
-            <View>
-              <Image
-                style={Styles.closeIcon}
-                source={this.closeIcon}
-                resizeMode="cover"
-              />
-            </View>
-          </TouchableHighlight>
-        )}
+            <TouchableHighlight
+              style={Styles.closeContainer}
+              underlayColor="transparent"
+              activeOpacity={0.5}
+              onPress={onCancel}
+            >
+              <View>
+                <Image
+                  style={Styles.closeIcon}
+                  source={this.closeIcon}
+                  resizeMode="cover"
+                />
+              </View>
+            </TouchableHighlight>
+          )}
       </View>
     );
   }
@@ -274,13 +298,13 @@ class ModalItem extends PureComponent {
     this._toggleSelect = this._toggleSelect.bind(this);
   }
   _toggleSelect() {
-    const {toggleSelect, data} = this.props;
+    const { toggleSelect, data } = this.props;
     this.isSelected = !this.isSelected;
     this.forceUpdate();
     toggleSelect(data);
   }
   render() {
-    const {customStyle} = this.props;
+    const { customStyle } = this.props;
     return (
       <TouchableHighlight
         activeOpacity={0.5}
