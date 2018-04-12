@@ -2,7 +2,8 @@
  * Created by TinySymphony on 2017-01-03.
  */
 
-import React, {Component, PropTypes} from 'react';
+import React, {PureComponent} from 'react';
+import PropTypes from 'prop-types';
 import {
   View,
   Text,
@@ -13,10 +14,10 @@ import {
 } from 'react-native';
 import Styles, {IMG} from './LabelSelectStyle';
 
-class LabelSelect extends Component {
+class LabelSelect extends PureComponent {
   addIcon = {
     uri: IMG.addIcon
-  }
+  };
   static propTypes = {
     title: PropTypes.string,
     readOnly: PropTypes.bool,
@@ -25,7 +26,7 @@ class LabelSelect extends Component {
     enableAddBtn: PropTypes.bool,
     confirmText: PropTypes.string,
     cancelText: PropTypes.string
-  }
+  };
   static defaultProps = {
     style: {},
     customStyle: {},
@@ -36,7 +37,7 @@ class LabelSelect extends Component {
     enableAddBtn: true,
     confirmText: 'Confirm',
     cancelText: 'Cancel'
-  }
+  };
   constructor(props) {
     super(props);
     // 初始状态
@@ -63,15 +64,22 @@ class LabelSelect extends Component {
     this.cancelSelect();
   }
   openModal() {
-    if (!React.Children.toArray(this.props.children).filter(item => item.type === ModalItem).length) {
+    if (
+      !React.Children.toArray(this.props.children).filter(
+        item => item.type === ModalItem
+      ).length
+    ) {
       // TODO
     }
     this.props.enable && !this.props.readOnly && this.setModalVisible(true);
   }
   toggleSelect(time) {
     let index = this.selectedList.findIndex(item => item === time);
-    if (~index) {this.selectedList.splice(index, 1);}
-    else {this.selectedList.push(time);}
+    if (~index) {
+      this.selectedList.splice(index, 1);
+    } else {
+      this.selectedList.push(time);
+    }
   }
   render() {
     const {
@@ -93,62 +101,98 @@ class LabelSelect extends Component {
         });
       });
 
-    let modalItems = this.state.isModalVisible ? React.Children.toArray(this.props.children)
-      .filter(item => item.type === ModalItem)
-      .map((child, index) => {
-        return React.cloneElement(child, {
-          toggleSelect: this.toggleSelect
-        });
-      }) : null;
+    let modalItems = this.state.isModalVisible
+      ? React.Children.toArray(this.props.children)
+        .filter(item => item.type === ModalItem)
+        .map((child, index) => {
+          return React.cloneElement(child, {
+            toggleSelect: this.toggleSelect
+          });
+        })
+      : null;
 
     return (
       <View style={[Styles.selectedView, style]}>
         {selectedLabels}
-        {enable && !readOnly && enableAddBtn &&
+        {enable &&
+          !readOnly &&
+          enableAddBtn && (
           <TouchableHighlight
             style={[Styles.selectedItem, Styles.addItem]}
             underlayColor="transparent"
-            onPress={this.openModal}>
+            onPress={this.openModal}
+          >
             <Image
               style={Styles.addIcon}
               source={this.addIcon}
               resizeMode="cover"
-              />
+            />
           </TouchableHighlight>
-        }
+        )}
         <Modal
           transparent={true}
           visible={this.state.isModalVisible}
-          onRequestClose={() => {}}>
+          onRequestClose={() => {}}
+        >
           <View style={{flex: 1}}>
             <TouchableHighlight
               style={Styles.modalMask}
               activeOpacity={1}
               underlayColor="#00000077"
-              onPress={this.cancelSelect}>
+              onPress={this.cancelSelect}
+            >
               <View style={Styles.modalContainer}>
                 <View style={[Styles.modal, customStyle.modal || {}]}>
-                  <View style={Styles.title}><Text style={Styles.titleText}>{title}</Text></View>
-                  <View style={Styles.scrollView}>
-                    <ScrollView>
-                      {modalItems}
-                    </ScrollView>
+                  <View style={Styles.title}>
+                    <Text style={Styles.titleText}>{title}</Text>
                   </View>
-                  <View style={[Styles.buttonView, customStyle.buttonView || {}]}>
+                  <View style={Styles.scrollView}>
+                    <ScrollView>{modalItems}</ScrollView>
+                  </View>
+                  <View
+                    style={[Styles.buttonView, customStyle.buttonView || {}]}
+                  >
                     <TouchableHighlight
                       underlayColor="transparent"
                       activeOpacity={0.8}
-                      onPress={this.cancelSelect}>
-                      <View style={[Styles.modalButton, customStyle.cancelButton || {}]}>
-                        <Text style={[Styles.buttonText, customStyle.cancelText || {}]}>{cancelText}</Text>
+                      onPress={this.cancelSelect}
+                    >
+                      <View
+                        style={[
+                          Styles.modalButton,
+                          customStyle.cancelButton || {}
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            Styles.buttonText,
+                            customStyle.cancelText || {}
+                          ]}
+                        >
+                          {cancelText}
+                        </Text>
                       </View>
                     </TouchableHighlight>
                     <TouchableHighlight
                       underlayColor="transparent"
                       activeOpacity={0.8}
-                      onPress={this.confirmSelect}>
-                      <View style={[Styles.modalButton, Styles.confirmButton, customStyle.confirmButton || {}]}>
-                        <Text style={[Styles.buttonText, customStyle.confirmText || {}]}>{confirmText}</Text>
+                      onPress={this.confirmSelect}
+                    >
+                      <View
+                        style={[
+                          Styles.modalButton,
+                          Styles.confirmButton,
+                          customStyle.confirmButton || {}
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            Styles.buttonText,
+                            customStyle.confirmText || {}
+                          ]}
+                        >
+                          {confirmText}
+                        </Text>
                       </View>
                     </TouchableHighlight>
                   </View>
@@ -162,21 +206,21 @@ class LabelSelect extends Component {
   }
 }
 
-class Label extends Component {
+class Label extends PureComponent {
   closeIcon = {
     uri: IMG.closeIcon
-  }
+  };
   static propTypes = {
     onCancel: PropTypes.func,
     readOnly: PropTypes.bool,
     enable: PropTypes.bool
-  }
+  };
   static defaultProps = {
     onCancel: () => {},
     enable: true,
     readOnly: false,
     customStyle: {}
-  }
+  };
   constructor(props) {
     super(props);
   }
@@ -184,33 +228,47 @@ class Label extends Component {
     const {enable, readOnly, onCancel, customStyle} = this.props;
     return (
       <View style={[Styles.selectedItem, !enable && Styles.disableColor]}>
-        <Text style={[Styles.labelText, !enable && Styles.disableText, customStyle.text || {}]}
-          numberOfLines={1} ellipsisMode="tail">{this.props.children}</Text>
-        {enable && !readOnly && <TouchableHighlight
-          style={Styles.closeContainer}
-          underlayColor="transparent"
-          activeOpacity={0.5}
-          onPress={onCancel}>
-          <View>
-            <Image
-              style={Styles.closeIcon}
-              source={this.closeIcon}
-              resizeMode="cover"/>
-          </View>
-        </TouchableHighlight>}
+        <Text
+          style={[
+            Styles.labelText,
+            !enable && Styles.disableText,
+            customStyle.text || {}
+          ]}
+          numberOfLines={1}
+          ellipsisMode="tail"
+        >
+          {this.props.children}
+        </Text>
+        {enable &&
+          !readOnly && (
+          <TouchableHighlight
+            style={Styles.closeContainer}
+            underlayColor="transparent"
+            activeOpacity={0.5}
+            onPress={onCancel}
+          >
+            <View>
+              <Image
+                style={Styles.closeIcon}
+                source={this.closeIcon}
+                resizeMode="cover"
+              />
+            </View>
+          </TouchableHighlight>
+        )}
       </View>
     );
   }
 }
 
-class ModalItem extends Component {
+class ModalItem extends PureComponent {
   static propTypes = {
     toggleSelect: PropTypes.func
-  }
+  };
   static defaultProps = {
     customStyle: {}
-  }
-  constructor (props) {
+  };
+  constructor(props) {
     super(props);
     this.isSelected = false;
     this._toggleSelect = this._toggleSelect.bind(this);
@@ -221,24 +279,34 @@ class ModalItem extends Component {
     this.forceUpdate();
     toggleSelect(data);
   }
-  render () {
-    const {
-      customStyle
-    } = this.props;
+  render() {
+    const {customStyle} = this.props;
     return (
       <TouchableHighlight
         activeOpacity={0.5}
         underlayColor="transparent"
-        onPress={this._toggleSelect}>
+        onPress={this._toggleSelect}
+      >
         <View style={Styles.modalItem}>
           <Text
             style={[Styles.modalText, customStyle.modalText || {}]}
             numberOfLines={1}
-            ellipsisMode="tail">
+            ellipsisMode="tail"
+          >
             {this.props.children}
           </Text>
-          <View style={[Styles.outerCircle, this.isSelected ? Styles.enableCircle : {}, customStyle.outerCircle || {}]}>
-            {this.isSelected && <View style={[Styles.innerCircle, customStyle.innerCircle || {}]}/>}
+          <View
+            style={[
+              Styles.outerCircle,
+              this.isSelected ? Styles.enableCircle : {},
+              customStyle.outerCircle || {}
+            ]}
+          >
+            {this.isSelected && (
+              <View
+                style={[Styles.innerCircle, customStyle.innerCircle || {}]}
+              />
+            )}
           </View>
         </View>
       </TouchableHighlight>
