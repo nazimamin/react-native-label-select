@@ -2,18 +2,19 @@
  * Created by TinySymphony on 2017-01-03.
  */
 
-import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
+import React, {PureComponent} from 'react';
+import PropTypes from 'prop-types';
 import {
   View,
   Text,
   Image,
-  Modal,
   ScrollView,
-  TouchableHighlight
-} from "react-native";
-import Styles, { IMG } from "./LabelSelectStyle";
-
+  TouchableHighlight,
+  Dimensions
+} from 'react-native';
+import Styles, {IMG} from './LabelSelectStyle';
+import Modal from '../../react-native-sliding-modal';
+const {height} = Dimensions.get('window');
 class LabelSelect extends PureComponent {
   addIcon = {
     uri: IMG.addIcon
@@ -30,13 +31,13 @@ class LabelSelect extends PureComponent {
   static defaultProps = {
     style: {},
     customStyle: {},
-    title: " ",
+    title: ' ',
     enable: true,
     readOnly: false,
     onConfirm: () => {},
     enableAddBtn: true,
-    confirmText: "Confirm",
-    cancelText: "Cancel"
+    confirmText: 'Confirm',
+    cancelText: 'Cancel'
   };
   constructor(props) {
     super(props);
@@ -51,14 +52,14 @@ class LabelSelect extends PureComponent {
     this.openModal = this.openModal.bind(this);
   }
   setModalVisible(isVisible) {
-    this.setState({ isModalVisible: isVisible });
+    this.setState({isModalVisible: isVisible});
   }
   cancelSelect() {
     this.selectedList = [];
     this.setModalVisible(false);
   }
   confirmSelect() {
-    const { onConfirm } = this.props;
+    const {onConfirm} = this.props;
     onConfirm(this.selectedList);
     this.selectedList = [];
     this.cancelSelect();
@@ -89,11 +90,11 @@ class LabelSelect extends PureComponent {
       style,
       enableAddBtn,
       customStyle,
-      confirmText,
-      cancelText,
       addButtonText
     } = this.props;
-    let selectedLabels = React.Children.toArray(this.props.children)
+
+    let childrenArr = React.Children.toArray(this.props.children);
+    let selectedLabels = childrenArr
       .filter(item => item.type === Label)
       .map((child, index) => {
         return React.cloneElement(child, {
@@ -103,13 +104,17 @@ class LabelSelect extends PureComponent {
       });
 
     let modalItems = this.state.isModalVisible
-      ? React.Children.toArray(this.props.children)
-          .filter(item => item.type === ModalItem)
-          .map((child, index) => {
-            return React.cloneElement(child, {
-              toggleSelect: this.toggleSelect
-            });
-          })
+      ? childrenArr
+        .filter(item => item.type === ModalItem)
+        .map((child, index) => {
+          return React.cloneElement(child, {
+            toggleSelect: this.toggleSelect
+          });
+        })
+      : null;
+
+    let modalActions = this.state.isModalVisible
+      ? childrenArr.filter(item => item.type === ModalActions)
       : null;
 
     return (
@@ -136,93 +141,48 @@ class LabelSelect extends PureComponent {
             {enable &&
               !readOnly &&
               enableAddBtn && (
-                <View
-                  style={[
-                    Styles.closeContainer,
-                    Styles.addItem,
-                    customStyle.addButton || {}
-                  ]}
-                >
-                  <Image
-                    style={Styles.addIcon}
-                    source={this.addIcon}
-                    resizeMode="cover"
-                  />
-                </View>
-              )}
+              <View
+                style={[
+                  Styles.closeContainer,
+                  Styles.addItem,
+                  customStyle.addButton || {}
+                ]}
+              >
+                <Image
+                  style={Styles.addIcon}
+                  source={this.addIcon}
+                  resizeMode="cover"
+                />
+              </View>
+            )}
           </View>
         </TouchableHighlight>
         )}
         <Modal
-          transparent={true}
-          visible={this.state.isModalVisible}
-          onRequestClose={() => {}}
+          show={this.state.isModalVisible}
+          closeCallback={this.confirmSelect}
+          top={height - 450}
+          ref={modal => {
+            this.modalRef = modal;
+          }}
+          defaultHeader
         >
-          <View style={{ flex: 1 }}>
-            <TouchableHighlight
-              style={Styles.modalMask}
-              activeOpacity={1}
-              underlayColor="#00000077"
-              onPress={this.cancelSelect}
-            >
-              <View style={Styles.modalContainer}>
-                <View style={[Styles.modal, customStyle.modal || {}]}>
-                  <View style={Styles.title}>
-                    <Text style={Styles.titleText}>{title}</Text>
-                  </View>
-                  <View style={Styles.scrollView}>
-                    <ScrollView>{modalItems}</ScrollView>
-                  </View>
-                  <View
-                    style={[Styles.buttonView, customStyle.buttonView || {}]}
-                  >
-                    <TouchableHighlight
-                      underlayColor="transparent"
-                      activeOpacity={0.8}
-                      onPress={this.cancelSelect}
-                    >
-                      <View
-                        style={[
-                          Styles.modalButton,
-                          customStyle.cancelButton || {}
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            Styles.buttonText,
-                            customStyle.cancelText || {}
-                          ]}
-                        >
-                          {cancelText}
-                        </Text>
-                      </View>
-                    </TouchableHighlight>
-                    <TouchableHighlight
-                      underlayColor="transparent"
-                      activeOpacity={0.8}
-                      onPress={this.confirmSelect}
-                    >
-                      <View
-                        style={[
-                          Styles.modalButton,
-                          Styles.confirmButton,
-                          customStyle.confirmButton || {}
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            Styles.buttonText,
-                            customStyle.confirmText || {}
-                          ]}
-                        >
-                          {confirmText}
-                        </Text>
-                      </View>
-                    </TouchableHighlight>
-                  </View>
-                </View>
-              </View>
-            </TouchableHighlight>
+          <View style={Styles.modalContainer}>
+            <View style={Styles.title}>
+              <Text style={Styles.titleText}>{title}</Text>
+            </View>
+            <View style={Styles.scrollView}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {modalItems}
+              </ScrollView>
+            </View>
+            {(!modalActions || modalActions.length <= 0) &&
+              ModalActions(
+                {children: modalActions, props: this.props},
+                this.cancelSelect,
+                this.confirmSelect
+              )}
+            {modalActions}
           </View>
         </Modal>
       </View>
@@ -249,7 +209,7 @@ class Label extends PureComponent {
     super(props);
   }
   render() {
-    const { enable, readOnly, onCancel, customStyle } = this.props;
+    const {enable, readOnly, onCancel, customStyle} = this.props;
     return (
       <View style={[Styles.selectedItem, !enable && Styles.disableColor]}>
         <Text
@@ -265,21 +225,21 @@ class Label extends PureComponent {
         </Text>
         {enable &&
           !readOnly && (
-            <TouchableHighlight
-              style={Styles.closeContainer}
-              underlayColor="transparent"
-              activeOpacity={0.5}
-              onPress={onCancel}
-            >
-              <View>
-                <Image
-                  style={Styles.closeIcon}
-                  source={this.closeIcon}
-                  resizeMode="cover"
-                />
-              </View>
-            </TouchableHighlight>
-          )}
+          <TouchableHighlight
+            style={Styles.closeContainer}
+            underlayColor="transparent"
+            activeOpacity={0.5}
+            onPress={onCancel}
+          >
+            <View>
+              <Image
+                style={Styles.closeIcon}
+                source={this.closeIcon}
+                resizeMode="cover"
+              />
+            </View>
+          </TouchableHighlight>
+        )}
       </View>
     );
   }
@@ -298,13 +258,13 @@ class ModalItem extends PureComponent {
     this._toggleSelect = this._toggleSelect.bind(this);
   }
   _toggleSelect() {
-    const { toggleSelect, data } = this.props;
+    const {toggleSelect, data} = this.props;
     this.isSelected = !this.isSelected;
     this.forceUpdate();
     toggleSelect(data);
   }
   render() {
-    const { customStyle } = this.props;
+    const {customStyle} = this.props;
     return (
       <TouchableHighlight
         activeOpacity={0.5}
@@ -338,7 +298,53 @@ class ModalItem extends PureComponent {
   }
 }
 
+const ModalActions = ({children, props}, cancelSelect, confirmSelect) => {
+  return (
+    <View {...props}>
+      {(!children || children.length <= 0) && (
+        <View style={[Styles.buttonView, props.customStyle.buttonView || {}]}>
+          <TouchableHighlight
+            underlayColor="transparent"
+            activeOpacity={0.8}
+            onPress={cancelSelect}
+          >
+            <View
+              style={[Styles.modalButton, props.customStyle.cancelButton || {}]}
+            >
+              <Text
+                style={[Styles.buttonText, props.customStyle.cancelText || {}]}
+              >
+                {props.cancelText}
+              </Text>
+            </View>
+          </TouchableHighlight>
+          <TouchableHighlight
+            underlayColor="transparent"
+            activeOpacity={0.8}
+            onPress={confirmSelect}
+          >
+            <View
+              style={[
+                Styles.modalButton,
+                Styles.confirmButton,
+                props.customStyle.confirmButton || {}
+              ]}
+            >
+              <Text
+                style={[Styles.buttonText, props.customStyle.confirmText || {}]}
+              >
+                {props.confirmText}
+              </Text>
+            </View>
+          </TouchableHighlight>
+        </View>
+      )}
+      {children}
+    </View>
+  );
+};
+
 LabelSelect.Label = Label;
 LabelSelect.ModalItem = ModalItem;
-
+LabelSelect.ModalActions = ModalActions;
 export default LabelSelect;
