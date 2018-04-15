@@ -31,7 +31,9 @@
     "test": "jest",
     "coverage": "cat ./coverage/lcov.info | coveralls"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react-native-sliding-modal": "https://github.com/nazimamin/react-native-sliding-modal/tarball/master"
+  },
   "devDependencies": {
     "babel-jest": "22.4.3",
     "babel-preset-react-native": "4.0.0",

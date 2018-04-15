@@ -5,7 +5,6 @@
 import {Dimensions, StyleSheet} from 'react-native';
 const window = Dimensions.get('window');
 const {width, height, scale} = window;
-console.log(scale);
 export const Color = {
   disableColor: '#eaeaea',
   main: '#5d0e8b'
@@ -78,7 +77,6 @@ export default StyleSheet.create({
   title: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    paddingTop: 0,
     borderBottomWidth: 2 / scale,
     borderBottomColor: '#bbb'
   },
@@ -95,8 +93,6 @@ export default StyleSheet.create({
   buttonView: {
     margin: 18,
     marginBottom: 30,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
     flexDirection: 'row',
     justifyContent: 'space-around'
   },

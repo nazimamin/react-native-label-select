@@ -41,7 +41,6 @@ class LabelSelect extends PureComponent {
   };
   constructor(props) {
     super(props);
-    // 初始状态
     this.state = {
       isModalVisible: false
     };
@@ -76,6 +75,7 @@ class LabelSelect extends PureComponent {
   }
   toggleSelect(time) {
     let index = this.selectedList.findIndex(item => item === time);
+
     if (~index) {
       this.selectedList.splice(index, 1);
     } else {
@@ -116,7 +116,7 @@ class LabelSelect extends PureComponent {
     let modalActions = this.state.isModalVisible
       ? childrenArr.filter(item => item.type === ModalActions)
       : null;
-
+    console.log(modalActions);
     return (
       <View style={[Styles.selectedView, style]}>
         {selectedLabels}
@@ -161,11 +161,10 @@ class LabelSelect extends PureComponent {
         <Modal
           show={this.state.isModalVisible}
           closeCallback={this.confirmSelect}
-          top={height - 450}
+          top={height * 0.45}
           ref={modal => {
             this.modalRef = modal;
           }}
-          defaultHeader
         >
           <View style={Styles.modalContainer}>
             <View style={Styles.title}>
@@ -256,6 +255,9 @@ class ModalItem extends PureComponent {
     super(props);
     this.isSelected = false;
     this._toggleSelect = this._toggleSelect.bind(this);
+    this.state = {
+      isDisabled: false
+    };
   }
   _toggleSelect() {
     const {toggleSelect, data} = this.props;
@@ -270,6 +272,7 @@ class ModalItem extends PureComponent {
         activeOpacity={0.5}
         underlayColor="transparent"
         onPress={this._toggleSelect}
+        disabled={this.state.isDisabled}
       >
         <View style={Styles.modalItem}>
           <Text
@@ -298,9 +301,13 @@ class ModalItem extends PureComponent {
   }
 }
 
-const ModalActions = ({children, props}, cancelSelect, confirmSelect) => {
+const ModalActions = (
+  {style, children, props},
+  cancelSelect,
+  confirmSelect
+) => {
   return (
-    <View {...props}>
+    <View>
       {(!children || children.length <= 0) && (
         <View style={[Styles.buttonView, props.customStyle.buttonView || {}]}>
           <TouchableHighlight
@@ -339,7 +346,7 @@ const ModalActions = ({children, props}, cancelSelect, confirmSelect) => {
           </TouchableHighlight>
         </View>
       )}
-      {children}
+      {children && <View style={{...style}}>{children}</View>}
     </View>
   );
 };
