@@ -10,11 +10,15 @@ import {
   Image,
   ScrollView,
   TouchableHighlight,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import Styles, {IMG} from './LabelSelectStyle';
-import Modal from '../../react-native-sliding-modal';
-const {height} = Dimensions.get('window');
+import Modal from 'react-native-sliding-modal';
+import {Feather as Icon} from '@expo/vector-icons';
+
+const {height, width} = Dimensions.get('window');
+const isIPhoneX = Platform.OS === 'ios' && (height === 812 && width === 375);
 class LabelSelect extends PureComponent {
   addIcon = {
     uri: IMG.addIcon
@@ -116,7 +120,9 @@ class LabelSelect extends PureComponent {
     let modalActions = this.state.isModalVisible
       ? childrenArr.filter(item => item.type === ModalActions)
       : null;
-    console.log(modalActions);
+
+    let modalTop = isIPhoneX ? height * 0.45 : height * 0.37;
+
     return (
       <View style={[Styles.selectedView, style]}>
         {selectedLabels}
@@ -161,7 +167,7 @@ class LabelSelect extends PureComponent {
         <Modal
           show={this.state.isModalVisible}
           closeCallback={this.confirmSelect}
-          top={height * 0.45}
+          top={modalTop}
           ref={modal => {
             this.modalRef = modal;
           }}
@@ -170,18 +176,22 @@ class LabelSelect extends PureComponent {
             <View style={Styles.title}>
               <Text style={Styles.titleText}>{title}</Text>
             </View>
-            <View style={Styles.scrollView}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {modalItems}
-              </ScrollView>
+            <View
+              style={{
+                flex: 1
+              }}
+            >
+              <View style={Styles.scrollView}>
+                <ScrollView>{modalItems}</ScrollView>
+              </View>
+              {(!modalActions || modalActions.length <= 0) &&
+                ModalActions(
+                  {children: modalActions, props: this.props},
+                  this.cancelSelect,
+                  this.confirmSelect
+                )}
+              {modalActions}
             </View>
-            {(!modalActions || modalActions.length <= 0) &&
-              ModalActions(
-                {children: modalActions, props: this.props},
-                this.cancelSelect,
-                this.confirmSelect
-              )}
-            {modalActions}
           </View>
         </Modal>
       </View>
@@ -311,37 +321,27 @@ const ModalActions = (
       {(!children || children.length <= 0) && (
         <View style={[Styles.buttonView, props.customStyle.buttonView || {}]}>
           <TouchableHighlight
-            underlayColor="transparent"
+            underlayColor="#5d0e8b80"
             activeOpacity={0.8}
             onPress={cancelSelect}
+            style={[Styles.modalButton, props.customStyle.cancelButton || {}]}
           >
-            <View
-              style={[Styles.modalButton, props.customStyle.cancelButton || {}]}
-            >
-              <Text
-                style={[Styles.buttonText, props.customStyle.cancelText || {}]}
-              >
-                {props.cancelText}
-              </Text>
+            <View>
+              <Icon name="x" color="#5d0e8b" size={26} />
             </View>
           </TouchableHighlight>
           <TouchableHighlight
-            underlayColor="transparent"
+            underlayColor="#5d0e8b80"
             activeOpacity={0.8}
             onPress={confirmSelect}
+            style={[
+              Styles.modalButton,
+              Styles.confirmButton,
+              props.customStyle.confirmButton || {}
+            ]}
           >
-            <View
-              style={[
-                Styles.modalButton,
-                Styles.confirmButton,
-                props.customStyle.confirmButton || {}
-              ]}
-            >
-              <Text
-                style={[Styles.buttonText, props.customStyle.confirmText || {}]}
-              >
-                {props.confirmText}
-              </Text>
+            <View>
+              <Icon name="check" color="#5d0e8b" size={26} />
             </View>
           </TouchableHighlight>
         </View>

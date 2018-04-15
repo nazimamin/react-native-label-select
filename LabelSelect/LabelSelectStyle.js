@@ -66,7 +66,10 @@ export default StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#00000077'
   },
-  modalContainer: {},
+  modalContainer: {
+    flex: 1,
+    flexGrow: 1
+  },
   modal: {
     height: height * 0.6,
     width: width * 0.6,
@@ -97,13 +100,14 @@ export default StyleSheet.create({
     justifyContent: 'space-around'
   },
   modalButton: {
-    height: 40,
-    width: width * 0.3,
-    paddingLeft: 20,
-    paddingRight: 20,
+    height: 60,
+    width: 60,
+    borderRadius: 30,
+    marginLeft: 20,
+    marginRight: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Color.main
+    backgroundColor: '#f1f1f1'
   },
   modalItem: {
     height: 50,

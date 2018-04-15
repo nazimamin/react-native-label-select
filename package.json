@@ -32,6 +32,7 @@
     "coverage": "cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
+    "@expo/vector-icons": "^6.3.1",
     "react-native-sliding-modal": "https://github.com/nazimamin/react-native-sliding-modal/tarball/master"
   },
   "devDependencies": {
